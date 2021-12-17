@@ -10,7 +10,7 @@ def main():
     from geopy import distance
     import numpy as np
 
-    gmaps_key = googlemaps.Client(key="AIzaSyAiXzS6pzDnRtanYtQebCAbEyFQ8xB6niE")
+    gmaps_key = googlemaps.Client(key="")
 
     from kafka import KafkaConsumer
     consumer = KafkaConsumer(
