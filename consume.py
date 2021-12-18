@@ -10,8 +10,10 @@ def main():
     from geopy import distance
     import numpy as np
 
+    #need a google maps api key to use geocoding
     gmaps_key = googlemaps.Client(key="")
 
+    #kafka consumer, running locally
     from kafka import KafkaConsumer
     consumer = KafkaConsumer(
         'scrapeTut10',
@@ -21,16 +23,21 @@ def main():
     )
 
     for message in consumer:
+        #python dictionary(nested) to save messages
         data1 = json.loads(message.value)
-
+        
+        #needed to switch from dictionary to dataframe for easier geocoding
         df1 = pd.DataFrame(data1)
-
+        
+        #eliminates the extra key in the dict, no longer nested
         data2 = df1.to_dict('list')
-
+       
         df2 = pd.DataFrame(data2)
-
+        
+        #address for geocoding to coordinates
         add_1 = df2['Property Location'][0]
-
+    
+        #makes sure the address contains values else fills in a none value for distance from cbd
         if(len(add_1) != 0):
             try:
 
@@ -38,12 +45,14 @@ def main():
 
                 lat_add = g_add[0]["geometry"]["location"]["lat"]
                 long_add = g_add[0]["geometry"]["location"]["lng"]
-
+                
+                #address for the central business district
                 g_cbd = gmaps_key.geocode('Central Business District, Nairobi')
 
                 lat_cbd = g_cbd[0]["geometry"]["location"]["lat"]
                 long_cbd = g_cbd[0]["geometry"]["location"]["lng"]
-
+                
+                #calculates distance between cbd and property address
                 def hav_dist(lat, lat2, long, long2):
                     r = 6371
                     phi1 = np.radians(lat)
@@ -57,7 +66,8 @@ def main():
                 distance = hav_dist(lat_add, lat_cbd, long_add, long_cbd)
 
                 df2['DistanceFromCBD'] = distance
-
+            
+            #in case google maps can't geocode an address returns a none for distance from cbd
             except Exception as e:
                 print(e)
                 df2['DistanceFromCBD'] = None
