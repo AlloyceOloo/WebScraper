@@ -23,6 +23,7 @@ def main():
         value_deserializer = lambda x:loads(x.decode('utf-8'))
     )
     
+    #field names used to define the headers for the csv data
     field_names = ['Property Title', 'Property Price', 'Property Location', 'Property Bedrooms', 'Property Bathrooms', 'DistanceFromCBD']
 
     for message in consumer:
