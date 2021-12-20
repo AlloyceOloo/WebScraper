@@ -1,5 +1,5 @@
 # WebScraper
-Web scraper for properties on Property24
+Web scraper for rental properties on Property24.com/kenya
 
 Apache Kafka used as Streaming Platform
 
