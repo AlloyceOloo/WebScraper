@@ -9,6 +9,7 @@ def main():
     import googlemaps
     from geopy import distance
     import numpy as np
+    from csv import DictWriter
 
     #need a google maps api key to use geocoding
     gmaps_key = googlemaps.Client(key="")
@@ -21,6 +22,8 @@ def main():
         auto_offset_reset = 'earliest',
         value_deserializer = lambda x:loads(x.decode('utf-8'))
     )
+    
+    field_names = ['Property Title', 'Property Price', 'Property Location', 'Property Bedrooms', 'Property Bathrooms', 'DistanceFromCBD']
 
     for message in consumer:
         #python dictionary(nested) to save messages
@@ -40,7 +43,6 @@ def main():
         #makes sure the address contains values else fills in a none value for distance from cbd
         if(len(add_1) != 0):
             try:
-
                 g_add = gmaps_key.geocode(add_1)
 
                 lat_add = g_add[0]["geometry"]["location"]["lat"]
@@ -73,8 +75,19 @@ def main():
                 df2['DistanceFromCBD'] = None
         else:
             df2['DistanceFromCBD'] = None
+    
+        #dictionary to append to a csv file
+        data3 = df2.to_dict('list')
+        
+        #passing data3 dictionary to append to the props1.csv
+        with open('props1.csv', 'a') as f_object:
+            
+            dictwriter_object = DictWriter(f_object, fieldnames = field_names)
+            
+            dictwriter_object.writerow(data3)
+            
+            f_object.close()
 
-             
 
 if __name__ == '__main__':
     main()
