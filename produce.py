@@ -24,24 +24,33 @@ def main():
     property_baths = []
 
     #initialize the mongo database connection
-    my_client = MongoClient()
-    db = my_client.scrapeCollection
-    posts = db.posts
+    try:        
+        my_client = MongoClient()
+        db = my_client.scrapeCollection
+        posts = db.posts
+    except Exception as e:
+        print("Mongo DB Error")
 
     #running kafka locally
-    my_producer3 = KafkaProducer(
-        bootstrap_servers=['localhost:9092'],
-        value_serializer = lambda x:dumps(x).encode('utf-8')  
-    )
-
+    try:
+        my_producer3 = KafkaProducer(
+            bootstrap_servers=['localhost:9092'],
+            value_serializer = lambda x:dumps(x).encode('utf-8')  
+        )
+    except Exception as e:
+        print("Kafka Error")
+    
     #scrape the first page of the website only
     for page in range(1,2):
-
-        url = 'https://www.property24.co.ke/1-bedroom-properties-to-rent-in-nairobi-p95?Bathrooms=1&PropertyTypes=houses%2capartments-flats%2ctownhouses&Page=' + str(page)
-        html_text = requests.get(url).text
-        soup = BeautifulSoup(html_text, 'lxml')
-        properties = soup.find_all('div', class_='pull-left sc_listingTileContent')
-
+        
+        try:            
+            url = 'https://www.property24.co.ke/1-bedroom-properties-to-rent-in-nairobi-p95?Bathrooms=1&PropertyTypes=houses%2capartments-flats%2ctownhouses&Page=' + str(page)
+            html_text = requests.get(url).text
+            soup = BeautifulSoup(html_text, 'lxml')
+            properties = soup.find_all('div', class_='pull-left sc_listingTileContent')
+        except Exception as e:
+            print("URL error")
+            
         for properties in properties:
 
             property_desc = properties.find('div', class_='sc_listingTileArea').text.replace('\r','').replace('\n','')
@@ -75,14 +84,21 @@ def main():
             result = df.to_json(orient=None)
             
             #scrapeTut10 is the kafka topic in use
-            my_producer3.send('scrapeTut10', value=result)
-
+            try:                
+                my_producer3.send('scrapeTut10', value=result)
+            except Exception as e:
+                print("Kafka Topic Error")
+            
             #mongodb used as a data lake
-            posts.insert_one(data2)
-
+            try:
+                posts.insert_one(data2)
+            except Exception as e:
+                print("MongoDB keyspace error")
             #timer to avoid getting blocked from the website
             time_wait = 5
             time.sleep(time_wait * 1)
 
 if __name__ == '__main__':
     main()
+
+    
