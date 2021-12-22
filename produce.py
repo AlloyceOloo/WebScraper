@@ -80,6 +80,11 @@ def main():
 
             df = pd.DataFrame(data2)
             
+            #convert intended numerical columns from obj to float
+            df['Property Price'] = df['Property Price'].astype(float)
+            df['Property Bedrooms'] = df['Property Bedrooms'].astype(float)
+            df['Property Bathrooms'] = df['Property Bathrooms'].astype(float)
+            
             #json object, kafka can't recieve dataframes
             result = df.to_json(orient=None)
             
