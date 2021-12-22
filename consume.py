@@ -76,19 +76,22 @@ def main():
                 df2['DistanceFromCBD'] = None
         else:
             df2['DistanceFromCBD'] = None
-    
+        
+        #convert intented numerical columns from obj to float
+        df2['DistanceFromCBD'] = df2['DistanceFromCBD'].astype(float)
+        df2['Property Price'] = df2['Property Price'].astype(float)
+        df2['Property Bedrooms'] = df2['Property Bedrooms'].astype(float)
+        df2['Property Bathrooms'] = df2['Property Bathrooms'].astype(float)
+        
         #dictionary to append to a csv file
         data3 = df2.to_dict('list')
         
-        #passing data3 dictionary to append to the props1.csv
-        with open('props1.csv', 'a') as f_object:
+        #passing data3 dictionary to append to the props5.csv
+        with open('sparkdata1/props5.csv', 'a') as f_object:
                         
             dictwriter_object = DictWriter(f_object, fieldnames = field_names)
-            
-            dictwriter_object.writeheader()
-            
+                                    
             dictwriter_object.writerow(data3)
-
 
             f_object.close()
 
