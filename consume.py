@@ -82,10 +82,10 @@ def main():
         
         #passing data3 dictionary to append to the props1.csv
         with open('props1.csv', 'a') as f_object:
+                        
+            dictwriter_object = DictWriter(f_object, fieldnames = field_names)
             
             dictwriter_object.writeheader()
-
-            dictwriter_object = DictWriter(f_object, fieldnames = field_names)
             
             dictwriter_object.writerow(data3)
 
