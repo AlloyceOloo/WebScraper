@@ -14,7 +14,7 @@ def main():
     from json import dumps
     from kafka import KafkaProducer
     from pymongo import MongoClient
-    
+
 
     #initialize the variables to store property information
     property_desc = []
@@ -39,10 +39,10 @@ def main():
         )
     except Exception as e:
         print("Kafka Error")
-    
+
     #scrape the first page of the website only
     for page in range(1,2):
-        
+
         try:            
             url = 'https://www.property24.co.ke/1-bedroom-properties-to-rent-in-nairobi-p95?Bathrooms=1&PropertyTypes=houses%2capartments-flats%2ctownhouses&Page=' + str(page)
             html_text = requests.get(url).text
@@ -50,7 +50,7 @@ def main():
             properties = soup.find_all('div', class_='pull-left sc_listingTileContent')
         except Exception as e:
             print("URL error")
-            
+
         for properties in properties:
 
             property_desc = properties.find('div', class_='sc_listingTileArea').text.replace('\r','').replace('\n','')
@@ -79,21 +79,41 @@ def main():
             }
 
             df = pd.DataFrame(data2)
-            
+
             #convert intended numerical columns from obj to float
-            df['Property Price'] = df['Property Price'].astype(float)
-            df['Property Bedrooms'] = df['Property Bedrooms'].astype(float)
-            df['Property Bathrooms'] = df['Property Bathrooms'].astype(float)
-            
+            try:
+                df['Property Price'] = df['Property Price'].astype(float)
+            except Exception as e:
+                df['Property Price'] = None
+                print("Error with Price")
+                print(e)
+                pass
+
+            try:
+                df['Property Bedrooms'] = df['Property Bedrooms'].astype(float)
+            except Exception as e:
+                df['Property Bedrooms'] = None
+                print("Error with Bedrooms")
+                print(e)
+                pass
+
+            try:
+                df['Property Bathrooms'] = df['Property Bathrooms'].astype(float)
+            except Exception as e:
+                df['Property Bathrooms'] = None
+                print("Error with Bathrooms")
+                print(e)
+                pass
+
             #json object, kafka can't recieve dataframes
             result = df.to_json(orient=None)
-            
+
             #scrapeTut10 is the kafka topic in use
             try:                
                 my_producer3.send('scrapeTut10', value=result)
             except Exception as e:
                 print("Kafka Topic Error")
-            
+
             #mongodb used as a data lake
             try:
                 posts.insert_one(data2)
@@ -105,5 +125,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    
