@@ -122,6 +122,13 @@ def main():
             dictwriter_object.writerow(data3)
 
             f_object.close()
+            
+        #mongodb data lake
+        try:
+            posts.insert_one(data3)
+        except Exception as e:
+            print("MongoDB keyspace error")
+            print(e)
 
 
 if __name__ == '__main__':
